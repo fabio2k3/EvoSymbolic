@@ -517,4 +517,4 @@ if __name__ == "__main__":
     print(f"  log(-1)   → {log_tree.evaluate(X_danger[1:2])}")   # no debe dar NaN
     print(f"  exp(999)  → {exp_tree.evaluate(X_danger[:1])}")    # no debe dar Inf
 
-    print("\n✓ Fase 1 completada. Siguiente: Fase 2 — Evaluación de aptitud (fitness).")
+    print("\n✓ Fase 1 completada.")

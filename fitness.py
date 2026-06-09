@@ -1,5 +1,5 @@
 """
-Fase 2 — Evaluación de Aptitud (Fitness)
+Evaluación de Aptitud (Fitness)
 =========================================
 Depende de: phase1_expression_tree.py
 
@@ -414,4 +414,4 @@ if __name__ == "__main__":
     print(f"    {best_tree.to_string()}")
     print(f"    fitness = {best_fit:.5f}")
 
-    print("\n✓ Fase 2 completada. Siguiente: Fase 3 — Operadores genéticos.")
+

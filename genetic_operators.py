@@ -1,5 +1,5 @@
 """
-Fase 3 — Operadores Genéticos
+Operadores Genéticos
 ==============================
 Depende de: phase1_expression_tree.py  /  phase2_fitness.py
 
@@ -508,4 +508,3 @@ if __name__ == "__main__":
         best_expr  = population[int(np.argmin(fitnesses))].to_string()
         print(f"  Generación {gen_n}:  mejor fitness = {best_now:.4f}  →  {best_expr[:55]}")
 
-    print("\n✓ Fase 3 completada. Siguiente: Fase 4 — Motor GP (bucle evolutivo completo).")

@@ -1,18 +1,20 @@
 """
 Operadores Genéticos
-==============================
-Depende de: phase1_expression_tree.py  /  phase2_fitness.py
+====================
 
-Implementa los tres operadores que hacen evolucionar la población:
+Módulo encargado de aplicar los operadores evolutivos sobre la población
+de árboles de expresión.
 
-  1. Selección por torneo   → elige padres aptos para reproducirse
-  2. Crossover de subárboles → combina dos padres en un hijo
-  3. Mutación               → introduce variación en un individuo
-     · subtree_mutation     → reemplaza un subárbol al azar
-     · point_mutation       → cambia un operador o función
-     · constant_mutation    → perturba una constante
+Incluye:
+  - Selección por torneo
+  - Crossover de subárboles
+  - Mutaciones:
+      · subtree_mutation
+      · point_mutation
+      · constant_mutation
 
-  + GeneticOperators        → clase que agrupa todo con probabilidades
+Además, se define una clase unificadora para gestionar la evolución
+completa de una generación.
 """
 
 import random
@@ -28,8 +30,8 @@ from expression_tree import (
 )
 from fitness import FitnessEvaluator, evaluate_population
 
-MAX_DEPTH_DEFAULT = 6   # profundidad máxima permitida tras un operador
-
+# Profundidad máxima permitida tras aplicar operadores genéticos.
+MAX_DEPTH_DEFAULT = 6
 
 # ---------------------------------------------------------------------------
 # UTILIDAD: reemplazar un nodo dentro de un árbol
@@ -37,8 +39,22 @@ MAX_DEPTH_DEFAULT = 6   # profundidad máxima permitida tras un operador
 
 def _replace_node(tree: ExpressionTree, target: Node, new_node: Node) -> None:
     """
-    Modifica el árbol IN-PLACE: busca 'target' y lo reemplaza por 'new_node'.
-    Usa get_all_nodes() que ya devuelve (nodo, padre, posición).
+    Reemplaza un nodo dentro del árbol, modificando la estructura in-place.
+
+    Parámetros
+    ----------
+    tree : ExpressionTree
+        Árbol que será modificado.
+    target : Node
+        Nodo actual que se desea reemplazar.
+    new_node : Node
+        Nodo que ocupará el lugar del nodo objetivo.
+
+    Notas
+    -----
+    Se apoya en get_all_nodes(), que devuelve:
+        (nodo, padre, posición)
+    donde posición puede ser "root", "left", "right" o "child".
     """
     for node, parent, position in tree.get_all_nodes():
         if node is target:
@@ -65,18 +81,24 @@ def tournament_selection(
     """
     Selección por torneo de tamaño k.
 
-    Algoritmo:
-      1. Elige k individuos al azar de la población (con reemplazo).
-      2. Devuelve el que tiene menor fitness (recordamos: minimizamos).
+    Algoritmo
+    ---------
+    1. Elige k individuos al azar de la población, con reemplazo.
+    2. Devuelve el individuo con menor fitness, recordando que aquí
+       se minimiza la función de aptitud.
 
-    Ventaja frente a la ruleta:
-      · No requiere que todos los fitness sean positivos.
-      · La presión selectiva se controla fácilmente con k:
-          k=2  →  presión baja  (más exploración)
-          k=7  →  presión alta  (más explotación)
+    Ventajas
+    --------
+    - No exige fitness positivos.
+    - La presión selectiva se controla fácilmente con k.
+      k pequeño  -> mayor exploración
+      k grande   -> mayor explotación
 
-    Devuelve una REFERENCIA al individuo ganador (no una copia).
-    El motor GP hará clone() antes de aplicar operadores.
+    Retorna
+    -------
+    ExpressionTree
+        Referencia al individuo ganador. El motor genético suele clonar
+        antes de aplicar operadores.
     """
     candidates_idx = random.choices(range(len(population)), k=k)
     best_idx = min(candidates_idx, key=lambda i: fitnesses[i])
@@ -93,42 +115,37 @@ def subtree_crossover(
     max_depth: int = MAX_DEPTH_DEFAULT,
 ) -> Tuple[ExpressionTree, ExpressionTree]:
     """
-    Crossover de subárboles estándar (Koza 1992).
+    Crossover estándar de subárboles.
 
-    Algoritmo:
-      1. Copia profunda de ambos padres → hijo_a, hijo_b
-      2. Elige un nodo aleatorio en hijo_a  → punto_a
-      3. Elige un nodo aleatorio en hijo_b  → punto_b
-      4. Intercambia los subárboles:
-           hijo_a: punto_a ← subárbol de punto_b
-           hijo_b: punto_b ← subárbol de punto_a
-      5. Si algún hijo supera max_depth, devuelve el padre original (fallback)
+    Algoritmo
+    ---------
+    1. Clona ambos padres.
+    2. Selecciona un nodo aleatorio en cada hijo.
+    3. Intercambia los subárboles de esos nodos.
+    4. Si algún hijo supera max_depth, se usa el padre original como fallback.
 
-    Probabilidad interna: 90% nodos internos / 10% terminales.
-    (Koza observó que el crossover en hojas produce poca diversidad.)
-
-    Devuelve (hijo_a, hijo_b) — siempre dos hijos nuevos.
+    El sesgo hacia nodos internos favorece cruces más informativos.
     """
     child_a = parent_a.clone()
     child_b = parent_b.clone()
 
-    # Obtener todos los nodos de cada hijo
-    nodes_a = child_a.get_all_nodes()   # [(nodo, padre, pos), ...]
+    # Lista de nodos disponibles en cada hijo.
+    nodes_a = child_a.get_all_nodes()
     nodes_b = child_b.get_all_nodes()
 
-    # Seleccionar puntos de corte con sesgo hacia nodos internos
+    # Elegimos puntos de corte con sesgo hacia nodos internos.
     point_a = _biased_node_pick(nodes_a)
     point_b = _biased_node_pick(nodes_b)
 
-    # Extraer los subárboles (copias profundas para intercambio)
+    # Copias profundas de los subárboles que se intercambiarán.
     subtree_a = copy.deepcopy(point_a[0])
     subtree_b = copy.deepcopy(point_b[0])
 
-    # Intercambiar
+    # Intercambio de subárboles.
     _replace_node(child_a, point_a[0], subtree_b)
     _replace_node(child_b, point_b[0], subtree_a)
 
-    # Fallback si se supera max_depth
+    # Fallback si algún hijo se vuelve demasiado profundo.
     if child_a.depth() > max_depth:
         child_a = parent_a.clone()
     if child_b.depth() > max_depth:
@@ -139,11 +156,22 @@ def subtree_crossover(
 
 def _biased_node_pick(nodes: list, p_internal: float = 0.9):
     """
-    Elige un nodo con sesgo: p_internal de probabilidad de nodo interno.
-    Si no hay nodos internos (árbol de un solo nodo), devuelve el único.
+    Selecciona un nodo con sesgo hacia nodos internos.
+
+    Parámetros
+    ----------
+    nodes : list
+        Lista de tuplas (nodo, padre, posición).
+    p_internal : float
+        Probabilidad de seleccionar un nodo interno.
+
+    Retorna
+    -------
+    tuple
+        Tupla (nodo, padre, posición).
     """
-    internals  = [(n, p, pos) for (n, p, pos) in nodes if not n.is_terminal()]
-    terminals  = [(n, p, pos) for (n, p, pos) in nodes if n.is_terminal()]
+    internals = [(n, p, pos) for (n, p, pos) in nodes if not n.is_terminal()]
+    terminals = [(n, p, pos) for (n, p, pos) in nodes if n.is_terminal()]
 
     if not internals:
         return random.choice(terminals)
@@ -168,18 +196,19 @@ def subtree_mutation(
     """
     Mutación de subárbol.
 
-    Algoritmo:
-      1. Clona el árbol.
-      2. Elige un nodo al azar (sesgado a internos).
-      3. Genera un nuevo subárbol aleatorio de profundidad <= 2.
-      4. Reemplaza el nodo elegido por el nuevo subárbol.
-      5. Fallback si supera max_depth.
+    Algoritmo
+    ---------
+    1. Clona el árbol original.
+    2. Selecciona un nodo al azar, con sesgo hacia nodos internos.
+    3. Genera un subárbol aleatorio pequeño.
+    4. Sustituye el nodo elegido por el nuevo subárbol.
+    5. Si el árbol resultante supera max_depth, devuelve el original.
 
-    Es la mutación más disruptiva: puede cambiar la estructura radicalmente.
-    Equivale a un crossover con un árbol generado al azar.
+    Es una mutación bastante disruptiva porque puede cambiar la estructura
+    del árbol de forma importante.
     """
     mutant = tree.clone()
-    nodes  = mutant.get_all_nodes()
+    nodes = mutant.get_all_nodes()
     target = _biased_node_pick(nodes)
 
     new_subtree = generator.ramped_half_and_half(
@@ -189,7 +218,7 @@ def subtree_mutation(
     _replace_node(mutant, target[0], new_subtree)
 
     if mutant.depth() > max_depth:
-        return tree.clone()   # fallback al original
+        return tree.clone()
 
     return mutant
 
@@ -199,21 +228,20 @@ def point_mutation(
     generator: TreeGenerator,
 ) -> ExpressionTree:
     """
-    Mutación de punto (point mutation).
+    Mutación de punto.
 
-    Reemplaza UN solo nodo por otro del mismo tipo y aridad:
-      · OperatorNode  →  otro operador binario al azar
-      · FunctionNode  →  otra función unaria al azar
-      · Constant      →  nueva constante aleatoria en const_range
-      · Variable      →  otra variable al azar (si n_features > 1)
+    Reemplaza un único nodo por otro del mismo tipo y aridad:
+      - OperatorNode  -> otro operador binario
+      - FunctionNode  -> otra función unaria
+      - Constant      -> nueva constante aleatoria
+      - Variable      -> otra variable, si existe más de una
 
-    Es la mutación más conservadora: preserva la estructura del árbol.
-    Útil para ajuste fino de expresiones ya cercanas a la solución.
+    Esta mutación conserva la estructura general del árbol.
     """
     mutant = tree.clone()
     all_nodes = mutant.get_all_nodes()
 
-    # Elige cualquier nodo (sin sesgo especial)
+    # Se elige cualquier nodo del árbol.
     target_node, parent, position = random.choice(all_nodes)
 
     new_node = _mutate_node(target_node, generator)
@@ -223,14 +251,12 @@ def point_mutation(
 
 
 def _mutate_node(node: Node, generator: TreeGenerator) -> Node:
-    """Devuelve un nodo nuevo del mismo tipo y aridad que el original."""
-
+    """Genera un nodo nuevo del mismo tipo que el nodo original."""
     if isinstance(node, OperatorNode):
         ops = [k for k in generator.operators if k != node.name]
         if not ops:
             return copy.deepcopy(node)
         new_op = random.choice(ops)
-        # Conserva los hijos — solo cambia el operador
         return OperatorNode(new_op, copy.deepcopy(node.left), copy.deepcopy(node.right))
 
     if isinstance(node, FunctionNode):
@@ -261,20 +287,19 @@ def constant_mutation(
     sigma:      float = 0.5,
 ) -> ExpressionTree:
     """
-    Mutación de constante: perturba una constante existente con ruido gaussiano.
+    Mutación de constante.
 
-    Si el árbol no tiene constantes, devuelve una copia sin cambios.
+    Perturba una constante existente con ruido gaussiano.
+    Si el árbol no contiene constantes, devuelve una copia sin cambios.
 
-    sigma controla la magnitud de la perturbación:
-      · sigma pequeño (0.1)  →  ajuste fino
-      · sigma grande (2.0)   →  salto brusco
-
-    Este operador es clave cuando hay constantes en el árbol: sin él,
-    las constantes generadas aleatoriamente en la inicialización nunca
-    se ajustan (eso se hace bien en la Fase 5 con scipy, pero esta
-    mutación da empuje básico sin optimización).
+    Parámetros
+    ----------
+    sigma : float
+        Desviación estándar del ruido gaussiano.
+        Valores pequeños favorecen ajustes finos.
+        Valores grandes introducen cambios más bruscos.
     """
-    mutant    = tree.clone()
+    mutant = tree.clone()
     all_nodes = mutant.get_all_nodes()
     constants = [(n, p, pos) for (n, p, pos) in all_nodes if isinstance(n, Constant)]
 
@@ -282,7 +307,7 @@ def constant_mutation(
         return mutant
 
     target_node, parent, position = random.choice(constants)
-    new_val  = target_node.value + random.gauss(0, sigma)
+    new_val = target_node.value + random.gauss(0, sigma)
     new_node = Constant(new_val)
     _replace_node(mutant, target_node, new_node)
 
@@ -299,32 +324,39 @@ class GeneticOperators:
 
     Parámetros
     ----------
-    generator       : TreeGenerator  → para generar nuevos subárboles
-    tournament_size : int            → k para selección por torneo
-    p_crossover     : float          → prob. de aplicar crossover
-    p_subtree_mut   : float          → prob. de mutación de subárbol
-    p_point_mut     : float          → prob. de mutación de punto
-    p_constant_mut  : float          → prob. de mutación de constante
-    max_depth       : int            → profundidad máxima tras operadores
-    elite_size      : int            → cuántos mejores pasan sin operadores
+    generator       : TreeGenerator
+        Generador de árboles aleatorios usado en mutaciones.
+    tournament_size : int
+        Tamaño del torneo para selección.
+    p_crossover     : float
+        Probabilidad de aplicar crossover.
+    p_subtree_mut   : float
+        Probabilidad de mutación de subárbol.
+    p_point_mut     : float
+        Probabilidad de mutación de punto.
+    p_constant_mut  : float
+        Probabilidad de mutación de constante.
+    max_depth       : int
+        Profundidad máxima permitida tras los operadores.
+    elite_size      : int
+        Número de mejores individuos que pasan directamente a la nueva generación.
 
-    Nota sobre probabilidades:
-      Las tres mutaciones se aplican de forma independiente (no excluyente).
-      Un individuo puede sufrir subtree + point en el mismo paso.
-      p_crossover es la probabilidad de que el hijo venga de crossover;
-      si no hay crossover, se reproduce sin cruce.
+    Nota
+    ----
+    Las mutaciones se aplican de forma independiente.
+    Un individuo puede sufrir más de una mutación en el mismo ciclo.
     """
 
     def __init__(
         self,
-        generator:       TreeGenerator,
+        generator:      TreeGenerator,
         tournament_size: int   = 3,
-        p_crossover:     float = 0.80,
+        p_crossover:    float = 0.80,
         p_subtree_mut:   float = 0.10,
         p_point_mut:     float = 0.05,
         p_constant_mut:  float = 0.05,
-        max_depth:       int   = MAX_DEPTH_DEFAULT,
-        elite_size:      int   = 1,
+        max_depth:      int   = MAX_DEPTH_DEFAULT,
+        elite_size:     int   = 1,
     ):
         self.generator       = generator
         self.tournament_size = tournament_size
@@ -341,36 +373,35 @@ class GeneticOperators:
         fitnesses:  List[float],
     ) -> List[ExpressionTree]:
         """
-        Genera una nueva generación completa del mismo tamaño.
+        Genera una nueva población del mismo tamaño que la original.
 
-        Pasos:
-          1. Elitismo: copia los `elite_size` mejores directamente.
-          2. Para cada lugar restante:
-             a. Selecciona padre(s) por torneo.
-             b. Aplica crossover con prob. p_crossover.
-             c. Aplica mutaciones independientemente.
-          3. Devuelve la nueva generación.
+        Pasos
+        -----
+        1. Copia los mejores individuos mediante elitismo.
+        2. Selecciona padres por torneo.
+        3. Aplica crossover con cierta probabilidad.
+        4. Aplica mutaciones de forma independiente.
         """
-        pop_size    = len(population)
-        new_pop     = []
+        pop_size = len(population)
+        new_pop = []
 
-        # --- Elitismo ---
+        # Elitismo: se preservan los mejores individuos.
         elite = self._get_elite(population, fitnesses)
         new_pop.extend(elite)
 
-        # --- Generar el resto ---
+        # Generación del resto de la población.
         while len(new_pop) < pop_size:
-            # Selección
+            # Selección del primer padre.
             parent_a = tournament_selection(population, fitnesses, self.tournament_size)
 
-            # Crossover o reproducción
+            # Cruce o reproducción directa.
             if random.random() < self.p_crossover:
                 parent_b = tournament_selection(population, fitnesses, self.tournament_size)
                 child, _ = subtree_crossover(parent_a, parent_b, self.max_depth)
             else:
                 child = parent_a.clone()
 
-            # Mutaciones (independientes entre sí)
+            # Aplicación de mutaciones independientes.
             if random.random() < self.p_subtree_mut:
                 child = subtree_mutation(child, self.generator, self.max_depth)
             if random.random() < self.p_point_mut:
@@ -387,7 +418,7 @@ class GeneticOperators:
         population: List[ExpressionTree],
         fitnesses:  List[float],
     ) -> List[ExpressionTree]:
-        """Devuelve copias profundas de los `elite_size` mejores."""
+        """Devuelve copias profundas de los `elite_size` mejores individuos."""
         sorted_idx = np.argsort(fitnesses)[:self.elite_size]
         return [population[i].clone() for i in sorted_idx]
 
@@ -398,7 +429,7 @@ class GeneticOperators:
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  FASE 3 — Operadores Genéticos")
+    print("  Operadores Genéticos")
     print("=" * 60)
 
     random.seed(42)
@@ -410,8 +441,8 @@ if __name__ == "__main__":
     # 5.1  Selección por torneo
     # ------------------------------------------------------------------
     print("\n--- Selección por torneo (k=3) ---")
-    pop   = [gen.ramped_half_and_half(1, 3) for _ in range(8)]
-    fits  = [round(random.uniform(0.5, 50.0), 2) for _ in range(8)]
+    pop = [gen.ramped_half_and_half(1, 3) for _ in range(8)]
+    fits = [round(random.uniform(0.5, 50.0), 2) for _ in range(8)]
 
     print("  Población:")
     for i, (t, f) in enumerate(zip(pop, fits)):
@@ -454,9 +485,9 @@ if __name__ == "__main__":
 
     for seed in range(5):
         random.seed(seed)
-        m_sub  = subtree_mutation(base, gen)
-        m_pt   = point_mutation(base, gen)
-        m_cst  = constant_mutation(
+        m_sub = subtree_mutation(base, gen)
+        m_pt = point_mutation(base, gen)
+        m_cst = constant_mutation(
             ExpressionTree(OperatorNode("add", Variable(0), Constant(1.5))), gen
         )
         print(f"  subtree [{seed}]: {m_sub.to_string()[:50]}")
@@ -478,7 +509,7 @@ if __name__ == "__main__":
     # 5.4  Evolución de una generación completa
     # ------------------------------------------------------------------
     print("\n--- Evolución de una generación completa ---")
-    X      = np.linspace(-3, 3, 40).reshape(-1, 1)
+    X = np.linspace(-3, 3, 40).reshape(-1, 1)
     y_true = X[:, 0] ** 2 + np.sin(X[:, 0])
 
     evaluator = FitnessEvaluator(metric="mse", parsimony_coeff=0.001)
@@ -495,16 +526,15 @@ if __name__ == "__main__":
     random.seed(0)
     np.random.seed(0)
     population = [gen.ramped_half_and_half(1, 4) for _ in range(12)]
-    fitnesses  = evaluate_population(population, X, y_true, evaluator)
+    fitnesses = evaluate_population(population, X, y_true, evaluator)
 
     best_before = min(fitnesses)
     print(f"  Generación 0:  mejor fitness = {best_before:.4f}")
 
-    # Simular 5 generaciones
+    # Simulación de varias generaciones.
     for gen_n in range(1, 6):
         population = operators.evolve(population, fitnesses)
-        fitnesses  = evaluate_population(population, X, y_true, evaluator)
-        best_now   = min(fitnesses)
-        best_expr  = population[int(np.argmin(fitnesses))].to_string()
+        fitnesses = evaluate_population(population, X, y_true, evaluator)
+        best_now = min(fitnesses)
+        best_expr = population[int(np.argmin(fitnesses))].to_string()
         print(f"  Generación {gen_n}:  mejor fitness = {best_now:.4f}  →  {best_expr[:55]}")
-

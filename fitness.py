@@ -281,7 +281,7 @@ def evaluate_population(
     Evalúa todos los árboles de una población y devuelve sus fitness.
 
     La lista de fitness tiene el mismo orden que la población.
-    Este orden es fundamental para selección (Fase 3).
+    Este orden es fundamental para selección.
 
     Retorna: lista de floats, uno por árbol.
     """
@@ -303,7 +303,7 @@ def best_individual(
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("  FASE 2 — Evaluación de Aptitud (Fitness)")
+    print("Evaluación de Aptitud (Fitness)")
     print("=" * 60)
 
     # Datos de ejemplo: y = x² + sin(x)
@@ -363,7 +363,7 @@ if __name__ == "__main__":
     # ------------------------------------------------------------------
     print("\n--- Casos degenerados ---")
 
-    # División por cero sin protección manual (las protecciones las maneja Fase 1)
+    # División por cero sin protección manual 
     div_zero = ExpressionTree(OperatorNode("div", Variable(0), Constant(0.0)))
     f_dz = evaluator.evaluate(div_zero, X, y_true)
     print(f"  x / 0.0           → fitness = {f_dz:.2e}")

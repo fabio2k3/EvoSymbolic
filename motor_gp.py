@@ -455,4 +455,4 @@ if __name__ == "__main__":
     for gen, fit in convergence_log:
         print(f"    gen {gen:2d}: fitness = {fit:.6f}")
 
-    print("\n[OK] Motor GP completado. Siguiente paso: optimización de constantes si se desea.")
+    print("\n[OK] Motor GP completado")

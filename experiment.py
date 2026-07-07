@@ -391,28 +391,72 @@ if __name__ == "__main__":
     print(f"  Semilla    : {RANDOM_STATE}")
     print(f"  Train/Test : {int((1-TEST_SIZE)*100)}/{int(TEST_SIZE*100)} %")
 
+    # 1. Se ejecuta el experimento y se define la variable 'df' en el scope global/main
     df = run_experiment()
 
-    # Tabla resumen en consola
-    print("\n" + "=" * 60)
-    print("  TABLA RESUMEN")
-    print("=" * 60)
-    pivot = df.pivot_table(
-        index="library", columns="dataset",
-        values="r2", aggfunc="first"
+    # ===========================================================================
+    # 6. GENERACIÓN DE REPORTES DETALLADOS
+    # ===========================================================================
+    print("\n" + "=" * 70)
+    print("  TABLA COMPARATIVA MULTI-MÉTRICA (Resumen de Rendimiento)")
+    print("=" * 70)
+    
+    # Transformamos usando los nombres reales de tus columnas: 'time_s' y 'complexity'
+    df_melted = df.melt(
+        id_vars=["dataset", "library"], 
+        value_vars=["r2", "rmse", "time_s", "complexity"], 
+        var_name="metric", 
+        value_name="valor"
     )
-    print(pivot.to_string())
+    
+    # Pivoteamos para estructurar filas (dataset, métrica) y columnas (librerías)
+    pivot_detallada = df_melted.pivot_table(
+        index=["dataset", "metric"], 
+        columns="library", 
+        values="valor", 
+        aggfunc="first"
+    )
+    
+    # Ordenamos las métricas jerárquicamente por estética
+    metric_order = ["r2", "rmse", "complexity", "time_s"]
+    pivot_detallada = pivot_detallada.reindex(metric_order, level="metric")
+    
+    # Configurar formato decimal limpio para la consola
+    pd.set_option('display.float_format', lambda val: f"{val:.4f}" if isinstance(val, (float, np.float64)) else f"{val}")
+    print(pivot_detallada.to_string())
 
-    # Guardar CSV
+    print("\n" + "=" * 70)
+    print("  EXPRESIONES MATEMÁTICAS ENCONTRADAS")
+    print("=" * 70)
+    
+    # Tabla exclusiva para las fórmulas resultantes
+    pivot_formulas = df.pivot_table(
+        index="dataset", 
+        columns="library", 
+        values="expression", 
+        aggfunc="first"
+    )
+    
+    # Imprimir las expresiones formateadas
+    for dataset_name in pivot_formulas.index:
+        print(f"\n🔹 Dataset: {dataset_name}")
+        for lib_name in pivot_formulas.columns:
+            expr = pivot_formulas.loc[dataset_name, lib_name]
+            expr_trimmed = expr if len(str(expr)) < 90 else f"{str(expr)[:87]}..."
+            print(f"  [{lib_name:7s}] -> {expr_trimmed}")
+
+    # Guardar todos los reportes estructurados
+    pivot_detallada.to_csv("results_detailed_metrics.csv")
+    pivot_formulas.to_csv("results_detailed_expressions.csv")
     df.to_csv("results_table.csv", index=False)
-    print("\nGuardado: results_table.csv")
 
-    # Gráficas
+    print("\n" + "-" * 70)
+    print("[OK] Nuevos reportes detallados guardados con éxito:")
+    print("     - results_detailed_metrics.csv      (Métricas cruzadas)")
+    print("     - results_detailed_expressions.csv  (Fórmulas encontradas)")
+    print("     - results_table.csv                 (Datos planos originales)")
+
+    # 2. Llamamos a la función de gráficas pasándole el DataFrame correctamente definido
     plot_results(df)
 
-    print("\n[OK] Experimento finalizado.")
-    print("     Archivos generados:")
-    print("       results_table.csv")
-    print("       plot_r2.png")
-    print("       plot_time.png")
-    print("       plot_r2_vs_size.png")
+    print("\n[OK] Experimento finalizado por completo.")

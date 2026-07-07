@@ -23,9 +23,9 @@ import random
 from typing import List, Tuple, Optional
 from scipy.optimize import minimize
 
-from phase1_expression_tree import ExpressionTree, Constant
-from phase2_fitness import mse, FitnessEvaluator, evaluate_population, best_individual
-from phase4_gp_engine import GPEngine, GenerationStats
+from expression_tree import ExpressionTree, Constant
+from fitness import mse, FitnessEvaluator, evaluate_population, best_individual
+from motor_gp import GPEngine, GenerationStats
 
 
 # ---------------------------------------------------------------------------
@@ -367,7 +367,7 @@ if __name__ == "__main__":
     print("  Optimización de Constantes (scipy)")
     print("=" * 60)
 
-    from phase1_expression_tree import OperatorNode, FunctionNode, Variable
+    from expression_tree import OperatorNode, FunctionNode, Variable
 
     # ------------------------------------------------------------------
     # 6.1  Optimización directa de un árbol con una constante incorrecta

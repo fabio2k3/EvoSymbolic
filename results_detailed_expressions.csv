@@ -1,0 +1,6 @@
+dataset,DEAP,Nuestra,PySR,gplearn
+F1: x²,"mul(x0, x0)",(x0 * x0),(x0 * x0) * (((((-21.604364 / x0) * x0) * -3.1434784) * (x0 + x0)) / ((x0 * (x0 ,"mul(X0, X0)"
+F2: x²+sin(x),"sqrt(mul(x0, add(mul(mul(x0, x0), x0), log(mul(sub(-3.968761311640674, x0), mul(",((x0 * x0) + sin(x0)),(sin(x0) + -0.97708225) + ((x0 * x0) - -0.9770823),"add(sub(sin(add(-0.020, X0)), sub(0.801, div(mul(X0, X0), cos(-0.228)))), sqrt(s"
+F3: x·sin(x)+cos(x),"sub(add(mul(mul(0.2273282938199408, x0), div(x0, -0.7245898164145039)), 2.508710",(((((x0 * x0) * x0) - ((0.1561 / -2.774) / log(x0))) - (sin(cos(x0)) - (x0 * -7.,cos(x0) + (sin(x0) * x0),"log(mul(mul(cos(add(cos(sqrt(X0)), sin(-0.706))), div(sin(0.806), add(cos(sqrt(X"
+F4: x0·x1+sin(x0),"add(mul(x0, x1), sin(x0))",((x1 * x0) + sin(x0)),(x0 * x1) + sin(x0),"add(mul(X1, X0), sin(X0))"
+F5: x³−x²+x−1,"sub(mul(x0, mul(x0, add(x0, 0.1832965236373676))), sqrt(mul(x0, div(x0, 0.183296",(4.253 * ((sqrt(x0) * x0) - 0.6806)),(exp(x0 - -0.010718238) + (((-2.0040627 / exp(x0)) - sin(x0)) - sin((x0 + 1.6014,"sub(add(add(mul(mul(cos(0.478), cos(sub(X0, sub(add(X0, X0), cos(mul(add(sub(div"

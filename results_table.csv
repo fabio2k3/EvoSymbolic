@@ -1,0 +1,21 @@
+dataset,library,r2,rmse,time_s,complexity,expression
+F1: x²,Nuestra,1.0,0.0,0.82,3,(x0 * x0)
+F1: x²,gplearn,1.0,0.0,0.5,3,"mul(X0, X0)"
+F1: x²,PySR,1.0,0.0,18.08,25,(x0 * x0) * (((((-21.604364 / x0) * x0) * -3.1434784) * (x0 + x0)) / ((x0 * (x0 
+F1: x²,DEAP,1.0,0.0,1.06,3,"mul(x0, x0)"
+F2: x²+sin(x),Nuestra,1.0,0.0,1.06,6,((x0 * x0) + sin(x0))
+F2: x²+sin(x),gplearn,0.998,0.1705,4.63,27,"add(sub(sin(add(-0.020, X0)), sub(0.801, div(mul(X0, X0), cos(-0.228)))), sqrt(s"
+F2: x²+sin(x),PySR,1.0,0.0,1.89,10,(sin(x0) + -0.97708225) + ((x0 * x0) - -0.9770823)
+F2: x²+sin(x),DEAP,0.9899,0.387,1.63,19,"sqrt(mul(x0, add(mul(mul(x0, x0), x0), log(mul(sub(-3.968761311640674, x0), mul("
+F3: x·sin(x)+cos(x),Nuestra,0.9673,0.45,4.04,34,(((((x0 * x0) * x0) - ((0.1561 / -2.774) / log(x0))) - (sin(cos(x0)) - (x0 * -7.
+F3: x·sin(x)+cos(x),gplearn,0.9656,0.4621,5.17,148,"log(mul(mul(cos(add(cos(sqrt(X0)), sin(-0.706))), div(sin(0.806), add(cos(sqrt(X"
+F3: x·sin(x)+cos(x),PySR,1.0,0.0,2.0,7,cos(x0) + (sin(x0) * x0)
+F3: x·sin(x)+cos(x),DEAP,0.9741,0.4008,1.98,26,"sub(add(mul(mul(0.2273282938199408, x0), div(x0, -0.7245898164145039)), 2.508710"
+F4: x0·x1+sin(x0),Nuestra,1.0,0.0,1.35,6,((x1 * x0) + sin(x0))
+F4: x0·x1+sin(x0),gplearn,1.0,0.0,0.92,6,"add(mul(X1, X0), sin(X0))"
+F4: x0·x1+sin(x0),PySR,1.0,0.0,1.83,6,(x0 * x1) + sin(x0)
+F4: x0·x1+sin(x0),DEAP,1.0,0.0,1.23,6,"add(mul(x0, x1), sin(x0))"
+F5: x³−x²+x−1,Nuestra,0.897,4.0546,1.47,8,(4.253 * ((sqrt(x0) * x0) - 0.6806))
+F5: x³−x²+x−1,gplearn,0.9702,2.1794,4.36,128,"sub(add(add(mul(mul(cos(0.478), cos(sub(X0, sub(add(X0, X0), cos(mul(add(sub(div"
+F5: x³−x²+x−1,PySR,0.9998,0.193,2.15,21,(exp(x0 - -0.010718238) + (((-2.0040627 / exp(x0)) - sin(x0)) - sin((x0 + 1.6014
+F5: x³−x²+x−1,DEAP,0.9453,2.9542,1.81,14,"sub(mul(x0, mul(x0, add(x0, 0.1832965236373676))), sqrt(mul(x0, div(x0, 0.183296"

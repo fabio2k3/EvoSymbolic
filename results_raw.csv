@@ -1,0 +1,21 @@
+dataset,library,r2,rmse,mae,mape,time_s,complexity,depth,expression,target
+F1: x²,Nuestra,1.0,0.0,0.0,0.0,0.68,3,1,(x0 * x0),x²
+F1: x²,gplearn,1.0,0.0,0.0,0.0,0.19,3,1,"mul(X0, X0)",x²
+F1: x²,PySR,1.0,0.0,0.0,0.0,18.06,13,6,((x0 * (x0 + 0.01601556)) - ((x0 * 0.01601556) + -0.15851015)) - 0.15851015,x²
+F1: x²,DEAP,1.0,0.0,0.0,0.0,1.01,3,1,"mul(x0, x0)",x²
+F2: x²+sin(x),Nuestra,1.0,0.0,0.0,0.0,0.86,6,2,((x0 * x0) + sin(x0)),x² + sin(x)
+F2: x²+sin(x),gplearn,1.0,0.0,0.0,0.0,2.29,6,2,"add(sin(X0), mul(X0, X0))",x² + sin(x)
+F2: x²+sin(x),PySR,1.0,0.0,0.0,0.0,1.58,10,5,(x0 * x0) + sin((x0 * 1.0289676e-7) + x0),x² + sin(x)
+F2: x²+sin(x),DEAP,0.9776,0.7094,0.632,130.23,0.95,3,1,"mul(x0, x0)",x² + sin(x)
+F3: x·sin(x)+cos(x),Nuestra,0.9609,0.4873,0.4058,26.68,1.71,10,4,((x0 * sin(x0)) - sin(log((x0 * x0)))),x·sin(x) + cos(x)
+F3: x·sin(x)+cos(x),gplearn,0.9825,0.3259,0.2687,18.98,4.35,180,37,"div(cos(mul(sqrt(div(X0, 0.688)), add(sqrt(X0), add(-0.176, -0.762)))), sqrt(mul(mul(div(mul(mul(add",x·sin(x) + cos(x)
+F3: x·sin(x)+cos(x),PySR,1.0,0.0,0.0,0.0,1.66,7,3,cos(x0) + (sin(x0) * x0),x·sin(x) + cos(x)
+F3: x·sin(x)+cos(x),DEAP,0.9833,0.3189,0.2138,9.44,1.68,24,6,"sub(add(mul(mul(0.2273282938199408, x0), div(x0, -0.7245898164145039)), div(sqrt(-4.745808732559048)",x·sin(x) + cos(x)
+F4: x0·x1+sin(x0),Nuestra,0.9651,0.688,0.6249,93.05,0.6,3,1,(x1 * x0),x0·x1 + sin(x0)
+F4: x0·x1+sin(x0),gplearn,1.0,0.0,0.0,0.0,0.85,6,2,"add(mul(X1, X0), sin(X0))",x0·x1 + sin(x0)
+F4: x0·x1+sin(x0),PySR,1.0,0.0,0.0,0.0,1.56,6,3,(x0 * x1) + sin(x0),x0·x1 + sin(x0)
+F4: x0·x1+sin(x0),DEAP,1.0,0.0,0.0,0.0,1.02,6,2,"add(mul(x0, x1), sin(x0))",x0·x1 + sin(x0)
+F5: x³-x²+x-1,Nuestra,0.9978,0.5155,0.4188,63.32,2.17,26,6,(x0 + ((x0 - ((18.72 * x0) / (x0 / x0))) * ((x0 + 0.001712) + ((x0 * 15.02) / ((x0 - 13.3) - log(24.,x³ - x² + x - 1
+F5: x³-x²+x-1,gplearn,0.9794,1.5626,1.0686,100.63,3.88,76,14,"add(X0, add(add(log(-0.148), cos(add(X0, add(add(log(mul(-0.342, -0.227)), cos(log(-0.148))), log(-0",x³ - x² + x - 1
+F5: x³-x²+x-1,PySR,1.0,0.0,0.0,0.0,1.73,11,5,(((x0 * (x0 - 1.0)) - -1.0) * x0) - 1.0,x³ - x² + x - 1
+F5: x³-x²+x-1,DEAP,0.9988,0.3692,0.3692,46.69,1.52,13,5,"sub(add(-1.369177036013649, add(mul(mul(x0, x0), x0), x0)), mul(x0, x0))",x³ - x² + x - 1

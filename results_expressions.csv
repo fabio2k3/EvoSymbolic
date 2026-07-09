@@ -1,0 +1,21 @@
+Dataset,Objetivo,Biblioteca,Expresion_encontrada,R2
+F1: x²,x²,Nuestra,(x0 * x0),1.0
+F1: x²,x²,gplearn,"mul(X0, X0)",1.0
+F1: x²,x²,PySR,((x0 * (x0 + 0.01601556)) - ((x0 * 0.01601556) + -0.15851015)) - 0.15851015,1.0
+F1: x²,x²,DEAP,"mul(x0, x0)",1.0
+F2: x²+sin(x),x² + sin(x),Nuestra,((x0 * x0) + sin(x0)),1.0
+F2: x²+sin(x),x² + sin(x),gplearn,"add(sin(X0), mul(X0, X0))",1.0
+F2: x²+sin(x),x² + sin(x),PySR,(x0 * x0) + sin((x0 * 1.0289676e-7) + x0),1.0
+F2: x²+sin(x),x² + sin(x),DEAP,"mul(x0, x0)",0.9776
+F3: x·sin(x)+cos(x),x·sin(x) + cos(x),Nuestra,((x0 * sin(x0)) - sin(log((x0 * x0)))),0.9609
+F3: x·sin(x)+cos(x),x·sin(x) + cos(x),gplearn,"div(cos(mul(sqrt(div(X0, 0.688)), add(sqrt(X0), add(-0.176, -0.762)))), sqrt(mul(mul(div(mul(mul(add",0.9825
+F3: x·sin(x)+cos(x),x·sin(x) + cos(x),PySR,cos(x0) + (sin(x0) * x0),1.0
+F3: x·sin(x)+cos(x),x·sin(x) + cos(x),DEAP,"sub(add(mul(mul(0.2273282938199408, x0), div(x0, -0.7245898164145039)), div(sqrt(-4.745808732559048)",0.9833
+F4: x0·x1+sin(x0),x0·x1 + sin(x0),Nuestra,(x1 * x0),0.9651
+F4: x0·x1+sin(x0),x0·x1 + sin(x0),gplearn,"add(mul(X1, X0), sin(X0))",1.0
+F4: x0·x1+sin(x0),x0·x1 + sin(x0),PySR,(x0 * x1) + sin(x0),1.0
+F4: x0·x1+sin(x0),x0·x1 + sin(x0),DEAP,"add(mul(x0, x1), sin(x0))",1.0
+F5: x³-x²+x-1,x³ - x² + x - 1,Nuestra,(x0 + ((x0 - ((18.72 * x0) / (x0 / x0))) * ((x0 + 0.001712) + ((x0 * 15.02) / ((x0 - 13.3) - log(24.,0.9978
+F5: x³-x²+x-1,x³ - x² + x - 1,gplearn,"add(X0, add(add(log(-0.148), cos(add(X0, add(add(log(mul(-0.342, -0.227)), cos(log(-0.148))), log(-0",0.9794
+F5: x³-x²+x-1,x³ - x² + x - 1,PySR,(((x0 * (x0 - 1.0)) - -1.0) * x0) - 1.0,1.0
+F5: x³-x²+x-1,x³ - x² + x - 1,DEAP,"sub(add(-1.369177036013649, add(mul(mul(x0, x0), x0), x0)), mul(x0, x0))",0.9988
